@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request a Move | One Move Transport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #0d3b66f9;
+    --charcoal-soft: #45484a;
+    --white: #FFFFFF;
+    --paper: #f3f4f3f1;
+    --line: rgba(244,242,238,0.14);
+    --error: #db0f0f;
+    
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--blue);
+    color: var(--paper);
+    font-family: 'Noto Sans Georgian', sans-serif;
+    padding: 48px 20px 80px;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: clamp(34px, 6vw, 48px);
+    letter-spacing: 0.01em;
+    margin: 0 0 8px;
+    line-height: 1.05;
+  }
+
+  .sub {
+    color: rgba(244,242,238,0.65);
+    font-size: 15px;
+    margin: 0 0 36px;
+    max-width: 46ch;
+    font-weight: 500;
+  }
+
+  /* Service switcher — this drives which field group shows */
+  .service-switch {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .service-switch input[type="radio"] {
+    /* visually hidden but still focusable/clickable for accessibility */
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .service-switch label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    padding: 10px 18px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+    color: rgba(244,242,238,0.7);
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    user-select: none;
+  }
+
+  .service-switch input[type="radio"]:checked + label {
+    border-color: #e2a731;
+    color: #e2a731;
+    background: rgba(216,162,74,0.08);
+  }
+
+  .service-switch input[type="radio"]:focus-visible + label {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
+
+  fieldset {
+    border: none;
+    margin: 0 0 28px;
+    padding: 0;
+  }
+
+  legend {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 14px;
+    padding: 0;
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  label.field-label {
+    display: block;
+    font-size: 13px;
+    color: rgba(244,242,238,0.75);
+    margin-bottom: 6px;
+  }
+
+  label.field-label .req { color: var(--white); }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    background: var(--charcoal-soft);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 11px 13px;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--white);
+  }
+
+  textarea { min-height: 90px; resize: vertical; }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .row-2 { grid-template-columns: 1fr; }
+  }
+
+  /* Conditional groups start hidden; JS toggles a class to reveal */
+  .service-fields {
+    display: none;
+  }
+  .service-fields.active {
+    display: block;
+  }
+
+  button[type="submit"] {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    background: var(--white);
+    color: var(--blue);
+    border: none;
+    border-radius: 3px;
+    padding: 14px 28px;
+    cursor: pointer;
+    width: 100%;
+    transition: filter 0.15s ease;
+  }
+
+  button[type="submit"]:hover { filter: brightness(1.08); }
+  button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .status {
+    margin-top: 16px;
+    font-size: 14px;
+    padding: 12px 14px;
+    border-radius: 3px;
+    display: none;
+  }
+  .status.show { display: block; }
+  .status.ok {
+    background: rgba(47,125,120,0.15);
+    border: 1px solid var(--white);
+    color: #bfe3df;
+  }
+  .status.err {
+    background: rgba(193,89,74,0.15);
+    border: 1px solid var(--error);
+    color: #f0c3ba;
+  }
+
+  .error-text {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+    display: none;
+  }
+  .field.invalid input,
+  .field.invalid select,
+  .field.invalid textarea {
+    border-color: var(--error);
+  }
+  .field.invalid .error-text { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">One Move Transport</p>
+  <h1>Tell us what you need moved.</h1>
+  <p class="sub">Pick the service you're inquiring about and we'll route your request to the right team. One driver, one route, one move.</p>
+
+  <form id="inquiry-form" novalidate>
+
+    <!-- Service switcher: three radio inputs styled as pills. -->
+    <!-- JS listens for 'change' on this group and shows the matching fieldset below. -->
+    <div class="service-switch" role="radiogroup" aria-label="Inquiry type">
+      <input type="radio" name="service" id="service-booking" value="Booking" checked>
+      <label for="service-booking">Book a Delivery</label>
+
+      <input type="radio" name="service" id="service-rental" value="Rental">
+      <label for="service-rental">Vehicle Rental</label>
+
+      <input type="radio" name="service" id="service-driver" value="Driver Inquiry">
+      <label for="service-driver">Driver Inquiry</label>
+    </div>
+
+    <!-- Shared fields, always visible regardless of service selected -->
+    <fieldset>
+      <legend>Contact Info</legend>
+      <div class="row-2">
+        <div class="field" data-field="name">
+          <label class="field-label" for="name">Full name <span class="req">*</span></label>
+          <input type="text" id="name" name="name" required>
+          <div class="error-text">Please enter your name.</div>
+        </div>
+        <div class="field" data-field="phone">
+          <label class="field-label" for="phone">Phone <span class="req">*</span></label>
+          <input type="tel" id="phone" name="phone" required>
+          <div class="error-text">Please enter a phone number.</div>
+        </div>
+      </div>
+      <div class="field" data-field="email">
+        <label class="field-label" for="email">Email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" required>
+        <div class="error-text">Please enter a valid email.</div>
+      </div>
+    </fieldset>
+
+    <!-- Booking-specific fields -->
+    <fieldset class="service-fields active" data-service-group="Booking">
+      <legend>Delivery Details</legend>
+      <div class="row-2">
+        <div class="field" data-field="pickup">
+          <label class="field-label" for="pickup">Pickup address <span class="req">*</span></label>
+          <input type="text" id="pickup" name="pickup_address">
+          <div class="error-text">Please enter a pickup address.</div>
+        </div>
+        <div class="field" data-field="dropoff">
+          <label class="field-label" for="dropoff">Drop-off address <span class="req">*</span></label>
+          <input type="text" id="dropoff" name="dropoff_address">
+          <div class="error-text">Please enter a drop-off address.</div>
+        </div>
+      </div>
+      <div class="field" data-field="item-type">
+        <label class="field-label" for="item-type">What are we transporting? <span class="req">*</span></label>
+        <select id="item-type" name="item_type">
+          <option value="">Select one</option>
+          <option>Medical / Pharmaceutical</option>
+          <option>Appliance</option>
+          <option>B2B Freight</option>
+          <option>Food / Catering</option>
+          <option>Long-Distance Haul</option>
+          <option>Other</option>
+        </select>
+        <div class="error-text">Please select an item type.</div>
+      </div>
+      <div class="row-2">
+        <div class="field" data-field="needed-date">
+          <label class="field-label" for="needed-date">Date needed <span class="req">*</span></label>
+          <input type="date" id="needed-date" name="date_needed">
+          <div class="error-text">Please pick a date.</div>
+        </div>
+        <div class="field" data-field="needed-time">
+          <label class="field-label" for="needed-time">Preferred time window</label>
+          <input type="text" id="needed-time" name="time_window" placeholder="e.g. 9am–12pm">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Rental-specific fields -->
+    <fieldset class="service-fields" data-service-group="Rental">
+      <legend>Rental Details</legend>
+      <div class="field" data-field="vehicle-type">
+        <label class="field-label" for="vehicle-type">Vehicle type <span class="req">*</span></label>
+        <select id="vehicle-type" name="vehicle_type">
+          <option value="">Select one</option>
+          <option>Cargo Van</option>
+          <option>Box Truck</option>
+          <option>Refrigerated Truck</option>
+          <option>Flatbed</option>
+        </select>
+        <div class="error-text">Please select a vehicle type.</div>
+      </div>
+      <div class="row-2">
+        <div class="field" data-field="rental-start">
+          <label class="field-label" for="rental-start">Rental start <span class="req">*</span></label>
+          <input type="date" id="rental-start" name="rental_start">
+          <div class="error-text">Please pick a start date.</div>
+        </div>
+        <div class="field" data-field="rental-end">
+          <label class="field-label" for="rental-end">Rental end <span class="req">*</span></label>
+          <input type="date" id="rental-end" name="rental_end">
+          <div class="error-text">Please pick an end date.</div>
+        </div>
+      </div>
+      <div class="field" data-field="rental-location">
+        <label class="field-label" for="rental-location">Pickup location</label>
+        <input type="text" id="rental-location" name="rental_location" placeholder="DFW area preferred pickup point">
+      </div>
+    </fieldset>
+
+    <!-- Driver-inquiry-specific fields -->
+    <fieldset class="service-fields" data-service-group="Driver Inquiry">
+      <legend>Driver Details</legend>
+      <div class="row-2">
+        <div class="field" data-field="license-type">
+          <label class="field-label" for="license-type">License / CDL type <span class="req">*</span></label>
+          <select id="license-type" name="license_type">
+            <option value="">Select one</option>
+            <option>Standard (non-CDL)</option>
+            <option>CDL Class A</option>
+            <option>CDL Class B</option>
+          </select>
+          <div class="error-text">Please select a license type.</div>
+        </div>
+        <div class="field" data-field="own-vehicle">
+          <label class="field-label" for="own-vehicle">Do you have your own vehicle?</label>
+          <select id="own-vehicle" name="owns_vehicle">
+            <option value="">Select one</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" data-field="coverage-area">
+        <label class="field-label" for="coverage-area">Coverage area <span class="req">*</span></label>
+        <input type="text" id="coverage-area" name="coverage_area" placeholder="e.g. Dallas, Fort Worth, Arlington">
+        <div class="error-text">Please enter a coverage area.</div>
+      </div>
+      <div class="field" data-field="availability">
+        <label class="field-label" for="availability">Availability</label>
+        <textarea id="availability" name="availability" placeholder="Days/hours you're typically available"></textarea>
+      </div>
+    </fieldset>
+
+    <div class="field" data-field="notes">
+      <label class="field-label" for="notes">Anything else we should know?</label>
+      <textarea id="notes" name="notes"></textarea>
+    </div>
+
+    <button type="submit" id="submit-btn">Send Inquiry</button>
+    <div class="status" id="status"></div>
+  </form>
+</div>
+
+<script>
+/*
+  ────────────────────────────────────────────────────────────
+  PART 1: Show/hide fields based on the selected service
+  ────────────────────────────────────────────────────────────
+  Concept: event delegation + DOM manipulation.
+  We listen for 'change' events on the whole form (not each radio
+  individually), then check if the thing that changed was a service
+  radio. This is called "event delegation" — one listener handles
+  many elements, which is more efficient than attaching a listener
+  to each radio button separately.
+*/
+
+const form = document.getElementById('inquiry-form');
+const serviceGroups = document.querySelectorAll('.service-fields');
+
+function showServiceFields(serviceValue) {
+  serviceGroups.forEach(group => {
+    // toggle a CSS class rather than setting inline styles directly —
+    // keeps styling concerns in the CSS file, JS just flips a switch
+    const isMatch = group.dataset.serviceGroup === serviceValue;
+    group.classList.toggle('active', isMatch);
+
+    // disable inputs in hidden groups so their (empty/irrelevant) values
+    // never get submitted or validated
+    group.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = !isMatch;
+    });
+  });
+}
+
+form.addEventListener('change', (e) => {
+  if (e.target.name === 'service') {
+    showServiceFields(e.target.value);
+  }
+});
+
+// Run once on page load so the default-checked radio's fields are active
+// and every other group's inputs start disabled.
+showServiceFields(form.querySelector('input[name="service"]:checked').value);
+// Check the URL for a "service" parameter and pre-select that option
+const urlParams = new URLSearchParams(window.location.search);
+const requestedService = urlParams.get('service');
+
+if (requestedService === 'driver') {
+  document.getElementById('service-driver').checked = true;
+  showServiceFields('Driver Inquiry');
+} else if (requestedService === 'rental') {
+  document.getElementById('service-rental').checked = true;
+  showServiceFields('Rental');
+} else if (requestedService === 'delivery') {
+  document.getElementById('service-booking').checked = true;
+  showServiceFields('Booking');
+}
+
+/*
+  ────────────────────────────────────────────────────────────
+  PART 2: Validate, then submit via fetch (no page reload)
+  ────────────────────────────────────────────────────────────
+  Concept: fetch() + async/await.
+  Instead of letting the browser do a normal form POST (which reloads
+  the page and navigates to Formspree's site), we intercept the submit
+  event, send the data ourselves with fetch, and show a message in place.
+*/
+
+// SETUP STEP FOR YOU: sign up free at https://formspree.io, create a form,
+// and replace YOUR_FORM_ID below with the ID they give you.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
+const statusBox = document.getElementById('status');
+const submitBtn = document.getElementById('submit-btn');
+
+function setStatus(message, type) {
+  statusBox.textContent = message;
+  statusBox.className = 'status show ' + type; // 'ok' or 'err'
+}
+
+function validate() {
+  let firstInvalid = null;
+  let allValid = true;
+
+  // Only validate fields that are currently enabled (i.e. visible/relevant)
+  form.querySelectorAll('.field').forEach(fieldWrap => {
+    const input = fieldWrap.querySelector('input, select, textarea');
+    if (!input || input.disabled || !input.required) {
+      fieldWrap.classList.remove('invalid');
+      return;
+    }
+    const isEmpty = !input.value.trim();
+    fieldWrap.classList.toggle('invalid', isEmpty);
+    if (isEmpty) {
+      allValid = false;
+      if (!firstInvalid) firstInvalid = input;
+    }
+  });
+
+  if (firstInvalid) firstInvalid.focus();
+  return allValid;
+}
+
+// Mark the "always required" conditional fields as required via JS,
+// since HTML's `required` attribute would block submission even when
+// a field is hidden/disabled for a different service.
+['pickup', 'dropoff', 'item-type', 'needed-date'].forEach(id => {
+  document.getElementById(id).required = true;
+});
+['vehicle-type', 'rental-start', 'rental-end'].forEach(id => {
+  document.getElementById(id).required = true;
+});
+['license-type', 'coverage-area'].forEach(id => {
+  document.getElementById(id).required = true;
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // stop the default full-page POST/reload
+
+  if (!validate()) {
+    setStatus('Please fill out the required fields above.', 'err');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending…';
+
+  try {
+    // FormData automatically collects every enabled input's name/value
+    const formData = new FormData(form);
+
+    const response = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+      setStatus('Thanks — your inquiry has been sent. We\'ll be in touch shortly.', 'ok');
+      form.reset();
+      showServiceFields('Booking'); // reset conditional view to default
+    } else {
+      setStatus('Something went wrong sending your inquiry. Please try again or call us directly.', 'err');
+    }
+  } catch (err) {
+    setStatus('Network error — please check your connection and try again.', 'err');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Inquiry';
+  }
+});
+</script>
+</body>
+</html>
