@@ -236,10 +236,8 @@
       <input type="radio" name="service" id="service-booking" value="Booking" checked>
       <label for="service-booking">Book a Delivery</label>
 
-
-      <!-- PLACEMENT HOLDER FOR ANOTHER SERVICE -->
-      <!-- <input type="radio" name="service" id="service-rental" value="Rental">
-      <label for="service-rental">Vehicle Rental</label> -->
+      <input type="radio" name="service" id="service-rental" value="Rental">
+      <label for="service-rental">Vehicle Rental</label>
 
       <input type="radio" name="service" id="service-driver" value="Driver Inquiry">
       <label for="service-driver">Driver Inquiry</label>
@@ -265,11 +263,23 @@
         <input type="email" id="email" name="email" required>
         <div class="error-text">Please enter a valid email.</div>
       </div>
+      <div class="field" data-field="company-name">
+        <label class="field-label" for="company-name">Company name</label>
+        <input type="text" id="company-name" name="company_name" placeholder="Type N/A if not applicable">
+      </div>
+      <div class="field" data-field="business-address">
+        <label class="field-label" for="business-address">Business address</label>
+        <input type="text" id="business-address" name="business_address" placeholder="Type N/A if not applicable">
+      </div>
+      <div class="field" data-field="website">
+        <label class="field-label" for="website">Website (if applicable)</label>
+        <input type="text" id="website" name="website" placeholder="e.g. yourcompany.com">
+      </div>
     </fieldset>
 
     <!-- Booking-specific fields -->
     <fieldset class="service-fields active" data-service-group="Booking">
-      <legend>Delivery Details</legend>
+      <legend>Pickup &amp; Delivery</legend>
       <div class="row-2">
         <div class="field" data-field="pickup">
           <label class="field-label" for="pickup">Pickup address <span class="req">*</span></label>
@@ -295,6 +305,30 @@
         </select>
         <div class="error-text">Please select an item type.</div>
       </div>
+      <div class="field" data-field="item-condition">
+        <label class="field-label" for="item-condition">Are the items fragile, perishable, or oversized?</label>
+        <select id="item-condition" name="item_condition">
+          <option value="">Select one</option>
+          <option>Fragile</option>
+          <option>Perishable</option>
+          <option>Oversized</option>
+          <option>Combination of the above</option>
+          <option>None of the above</option>
+        </select>
+      </div>
+      <div class="field" data-field="item-weight-dims">
+        <label class="field-label" for="item-weight-dims">Average weight and dimensions of item(s)</label>
+        <input type="text" id="item-weight-dims" name="weight_dimensions" placeholder="e.g. 40 lbs, 24 x 18 x 12 in">
+      </div>
+      <div class="field" data-field="multiple-stops">
+        <label class="field-label" for="multiple-stops">Do you need multiple stops?</label>
+        <select id="multiple-stops" name="stop_count">
+          <option value="">Select one</option>
+          <option>1 stop</option>
+          <option>2 stops</option>
+          <option>3+ stops</option>
+        </select>
+      </div>
       <div class="row-2">
         <div class="field" data-field="needed-date">
           <label class="field-label" for="needed-date">Date needed <span class="req">*</span></label>
@@ -305,6 +339,39 @@
           <label class="field-label" for="needed-time">Preferred time window</label>
           <input type="text" id="needed-time" name="time_window" placeholder="e.g. 9am–12pm">
         </div>
+      </div>
+    </fieldset>
+
+    <!-- Also Booking-specific: split into its own titled section per request -->
+    <fieldset class="service-fields active" data-service-group="Booking">
+      <legend>Service Frequency</legend>
+      <div class="field" data-field="delivery-frequency">
+        <label class="field-label" for="delivery-frequency">Delivery frequency</label>
+        <select id="delivery-frequency" name="delivery_frequency">
+          <option value="">Select one</option>
+          <option>One-time</option>
+          <option>Daily</option>
+          <option>Weekly</option>
+          <option>Monthly</option>
+        </select>
+      </div>
+      <div class="field" data-field="payment-method">
+        <label class="field-label" for="payment-method">Preferred payment method</label>
+        <select id="payment-method" name="payment_method">
+          <option value="">Select one</option>
+          <option>Credit Card</option>
+          <option>ACH</option>
+          <option>PayPal</option>
+        </select>
+      </div>
+      <div class="field" data-field="delivery-budget">
+        <label class="field-label" for="delivery-budget">Estimated delivery budget</label>
+        <select id="delivery-budget" name="delivery_budget">
+          <option value="">Select one</option>
+          <option>$0 - $500</option>
+          <option>$500 - $2,000</option>
+          <option>$2,000+</option>
+        </select>
       </div>
     </fieldset>
 
@@ -451,7 +518,7 @@ if (requestedService === 'driver') {
 
 // SETUP STEP FOR YOU: sign up free at https://formspree.io, create a form,
 // and replace YOUR_FORM_ID below with the ID they give you.
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mnjebpre';
 
 const statusBox = document.getElementById('status');
 const submitBtn = document.getElementById('submit-btn');
